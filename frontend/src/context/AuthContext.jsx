@@ -15,21 +15,37 @@ export function AuthProvider({ children }) {
                 password,
             });
 
-            localStorage.setItem('access_token', response.data.access);
-            localStorage.setItem('refresh_token', response.data.refresh);
+            localStorage.setItem(
+                'access_token',
+                response.data.access
+            );
+
+            localStorage.setItem(
+                'refresh_token',
+                response.data.refresh
+            );
 
             setIsAuthenticated(true);
 
-            return true;
+            return {
+                success: true,
+                error: '',
+            };
+
         } catch (error) {
             console.error('Login failed:', error);
-            return false;
+
+            return {
+                success: false,
+                error: 'Invalid username or password.',
+            };
         }
     };
 
     const logout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+
         setIsAuthenticated(false);
     };
 

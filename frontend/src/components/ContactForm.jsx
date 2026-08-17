@@ -32,6 +32,8 @@ function ContactForm({
                 company: '',
             });
         }
+
+        setError('');
     }, [selectedContact]);
 
     const handleChange = (e) => {
@@ -45,18 +47,51 @@ function ContactForm({
         e.preventDefault();
         setError('');
 
+        // Name validation
+        if (!formData.name.trim()) {
+            setError('Name is required.');
+            return;
+        }
+
+        // Email validation
+        if (formData.email.trim()) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailPattern.test(formData.email.trim())) {
+                setError('Please enter a valid email address.');
+                return;
+            }
+        }
+
+        // Phone validation
+        const phonePattern = /^\d{10}$/;
+
+        if (formData.phone.trim()) {
+            if (!phonePattern.test(formData.phone.trim())) {
+                setError('Phone number must contain exactly 10 digits.');
+                return;
+            }
+        }
+
+        const cleanedData = {
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            phone: formData.phone.trim(),
+            company: formData.company.trim(),
+        };
+
         try {
             if (selectedContact) {
                 const response = await api.put(
                     `contacts/${selectedContact.id}/`,
-                    formData
+                    cleanedData
                 );
 
                 onContactUpdated(response.data);
             } else {
                 const response = await api.post(
                     'contacts/',
-                    formData
+                    cleanedData
                 );
 
                 onContactAdded(response.data);
@@ -69,75 +104,97 @@ function ContactForm({
                 });
             }
         } catch (error) {
-            console.error(error);
-            setError('Failed to save contact.');
+            console.error('Failed to save contact:', error);
+
+            if (error.response?.data) {
+                const errors = error.response.data;
+
+                if (errors.name) {
+                    setError(errors.name[0]);
+                } else if (errors.email) {
+                    setError(errors.email[0]);
+                } else if (errors.phone) {
+                    setError(errors.phone[0]);
+                } else {
+                    setError('Failed to save contact.');
+                }
+            } else {
+                setError('Unable to connect to the server.');
+            }
         }
     };
 
     return (
-    <div className="contact-form">
-        <h2>
-            {selectedContact ? 'Edit Contact' : 'Add Contact'}
-        </h2>
+        <div className="contact-form">
+            <h2>
+                {selectedContact ? 'Edit Contact' : 'Add Contact'}
+            </h2>
 
-        <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                />
+            <form onSubmit={handleSubmit}>
+                <div className="form-grid">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                    />
 
-                <input
-                    type="text"
-                    name="phone"
-                    placeholder="Phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                />
+                    <input
+                        type="text"
+                        name="phone"
+                        placeholder="Phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                    />
 
-                <input
-                    type="text"
-                    name="company"
-                    placeholder="Company"
-                    value={formData.company}
-                    onChange={handleChange}
-                />
-            </div>
+                    <input
+                        type="text"
+                        name="company"
+                        placeholder="Company"
+                        value={formData.company}
+                        onChange={handleChange}
+                    />
+                </div>
 
-            <div className="form-buttons">
-                <button type="submit" className="primary-button">
-                    {selectedContact ? 'Update Contact' : 'Add Contact'}
-                </button>
-
-                {selectedContact && (
+                <div className="form-buttons">
                     <button
-                        type="button"
-                        className="secondary-button"
-                        onClick={onCancelEdit}
+                        type="submit"
+                        className="primary-button"
                     >
-                        Cancel
+                        {selectedContact
+                            ? 'Update Contact'
+                            : 'Add Contact'}
                     </button>
-                )}
-            </div>
 
-            {error && (
-                <p className="form-error">{error}</p>
-            )}
-        </form>
-    </div>
-);
+                    {selectedContact && (
+                        <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={onCancelEdit}
+                        >
+                            Cancel
+                        </button>
+                    )}
+                </div>
+
+                {error && (
+                    <p className="form-error">
+                        {error}
+                    </p>
+                )}
+            </form>
+        </div>
+    );
 }
 
 export default ContactForm;

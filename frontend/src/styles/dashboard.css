@@ -207,3 +207,54 @@
 .logout-button:hover {
     background: #222;
 }
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.contact-avatar {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #222;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.company-name {
+    margin: 5px 0 0;
+    color: #777;
+}
+
+.detail-item a {
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.detail-item a:hover {
+    text-decoration: underline;
+}
+
+.contact-count {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #777;
+}
+
+.sort-select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+}
